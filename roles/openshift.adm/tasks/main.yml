@@ -1,0 +1,55 @@
+---
+
+- name: Curl get pip
+  command: curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" chdir={{ remote_user_home }}
+  delegate_to: "{{master_public_ip}}"
+  remote_user: "{{ remote_user_name }}"
+  become: true
+
+- name: Python install pip
+  command: python {{ remote_user_home }}/get-pip.py chdir={{ remote_user_home }}
+  delegate_to: "{{master_public_ip}}"
+  remote_user: "{{ remote_user_name }}"
+  become: true
+
+- name: Install passlib
+  pip: name=passlib state=present
+  delegate_to: "{{master_public_ip}}"
+  remote_user: "{{ remote_user_name }}"
+  become: true
+
+- name: Create admin account
+  htpasswd: name={{ admin_username }}  password={{ admin_password }}  path={{ htpasswd_path }}  state=present
+  delegate_to: "{{master_public_ip}}"
+  remote_user: "{{ remote_user_name }}"
+  become: true
+
+- name: Add cluster role to admin account
+  shell: 'oc adm policy add-cluster-role-to-user cluster-admin {{ admin_username }}'
+  delegate_to: "{{master_public_ip}}"
+  remote_user: "{{ remote_user_name }}"
+  become: true
+
+- name: Create some test users
+  shell: htpasswd -b /etc/origin/master/htpasswd {{ student_name_prefix }}{{ item }} {{ student_pass_prefix }}{{ item }}
+  with_sequence: count={{ student_count }}
+  delegate_to: "{{master_public_ip}}"
+  remote_user: "{{ remote_user_name }}"
+  become: true
+
+- name: Add loggingPublicURL to master-config file
+  lineinfile:
+    dest: /etc/origin/master/master-config.yaml
+    insertafter: "assetConfig:"
+    line:  "  loggingPublicURL: https://kibana.{{ wildcard }}"
+  delegate_to: "{{master_public_ip}}"
+  remote_user: "{{ remote_user_name }}"
+  become: true
+
+- name: Restart master service
+  service:
+    name: atomic-openshift-master.service
+    state: restarted
+  delegate_to: "{{master_public_ip}}"
+  remote_user: "{{ remote_user_name }}"
+  become: true

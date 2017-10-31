@@ -1,0 +1,6 @@
+---
+
+- include: 00_vms.yml
+- include: 01_seg.yml
+- include: 02_vpc.yml
+- include: 04_dns.yml

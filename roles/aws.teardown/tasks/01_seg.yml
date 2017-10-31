@@ -1,0 +1,26 @@
+---
+# roles/aws.teardown/tasks/00_seg.yml
+
+- name: Delete openshift-vpc security group
+  ec2_group:
+    name: "{{ ec2_security_group }}"
+    region: "{{ aws_region }}"
+    state: "absent"
+
+- name: Delete openshift-public-ingress security group
+  ec2_group:
+    name: "{{ ec2_security_group_ingress }}"
+    region: "{{ aws_region }}"
+    state: "absent"
+
+- name: Delete openshift-public-egress security group
+  ec2_group:
+    name: "{{ ec2_security_group_egress }}"
+    region: "{{ aws_region }}"
+    state: "absent"
+
+- name: Delete openshift-ssh security group
+  ec2_group:
+    name: "{{ ec2_security_group_ssh }}"
+    region: "{{ aws_region }}"
+    state: "absent"

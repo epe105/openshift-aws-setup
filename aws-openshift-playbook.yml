@@ -1,0 +1,41 @@
+---
+
+- name: Provision instances
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  roles:
+   - aws.provision
+
+- name: Refresh hosts
+  hosts: localhost
+
+- name: Register hosts
+  hosts: created_vms
+  remote_user: "{{ remote_user_name }}"
+  vars:
+    state: 'present'
+  roles:
+    - rhel.common
+    - rhel.rpms-ose
+
+- name: Refresh hosts
+  hosts: localhost
+
+- name: Host prerequisites
+  hosts: created_nodes
+  remote_user: "{{ remote_user_name }}"
+  vars:
+    state: 'present'
+  roles:
+   - rhel.docker
+
+- name: Install OpenShift
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+   state: 'present'
+  roles:
+   - openshift.aws
+   - openshift.adm
