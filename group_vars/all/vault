@@ -11,7 +11,7 @@ vault_cluster: paas
 vault_deploy_env: devel
 vault_release: 1.0.0.0
 
-vault_remote_user_name: ec2-user
+vault_remote_user_name: ec2-user # DO NOT CHANGE THIS
 vault_remote_user_key: libre
 
 vault_aws_access_key:
